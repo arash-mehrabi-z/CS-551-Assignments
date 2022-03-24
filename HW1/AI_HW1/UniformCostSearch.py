@@ -20,4 +20,35 @@ class UniformCostSearch(Algorithm):
         :return: The path which is a list of nodes.
         """
         # TODO: You should implement inside of this method!
-        return []
+        queue = PriorityQueue()
+        visited = []
+
+        item = ([self.start_node], 0)
+        queue.enqueue(item, 0)
+
+        while len(queue) > 0:
+            item = queue.dequeue()
+            path, path_cost = item
+
+            if path in visited:
+                continue
+            else:
+                visited.append(path)
+
+            self.iteration += 1
+            last_node = path[-1]
+
+            if last_node == self.target_node:
+                if not self.validity(path): #If we reached the target node without visiting all other nodes, it is a dead end.
+                    continue
+                else:
+                    return path
+            else:
+                for neighbor in last_node.connections:
+                    if not neighbor in path:
+                        distance = last_node.get_distance(neighbor)
+                        total_distance_to_neighbor = path_cost+distance
+                        new_path = path + [neighbor]
+                        queue.enqueue((new_path, total_distance_to_neighbor), total_distance_to_neighbor)
+
+        return [] #If we return empty list, it means there is no way to reach T starting from S with meeting each node only once.

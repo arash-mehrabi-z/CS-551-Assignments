@@ -1,0 +1,25 @@
+data1
+Uniform Cost Search:
+Path:	 [S, B, C, D, A, E, G, F, J, I, H, T]
+Cost:	 287
+Validity:	 True
+Iter:	 619
+Elapsed Time (sec):	0.015
+
+data2
+Uniform Cost Search:
+Path:	 [S, D, J, F, E, C, I, L, B, K, A, H, G, T]
+Cost:	 474
+Validity:	 True
+Iter:	 119598
+Elapsed Time (sec):	1896.875
+
+data3
+Uniform Cost Search:
+Path:	 [S, A, H, C, J, F, D, B, K, I, G, E, T]
+Cost:	 644
+Validity:	 True
+Iter:	 13887
+Elapsed Time (sec):	12.466
+
+
