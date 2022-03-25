@@ -21,8 +21,7 @@ class Node:
         self.y = int(node_info["y"])
         self.__distances = {connection["node"]: int(connection["distance"]) for connection in node_info["connections"]}
         self.connections = []
-
-	self.parent = None	# You can use it and assign anything in A* and UniformCostSearch classes.
+        self.parent = None	# You can use it and assign anything in A* and UniformCostSearch classes.
 
     def compute_connections(self, nodes: dict):
         """
