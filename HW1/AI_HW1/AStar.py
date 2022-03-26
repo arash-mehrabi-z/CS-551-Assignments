@@ -52,7 +52,42 @@ class AStar(Algorithm):
                         new_path_cost = path_cost + distance_to_neighbor
                         new_path = path + [neighbor]
 
-                        heuristic = neighbor.get_estimated_distance(self.target_node)
+                        # ### Heuristic 1 ###
+                        # heuristic = neighbor.get_estimated_distance(self.target_node)
+
+                        ### Heuristic 2 ###
+                        heuristic = 0
+                        if neighbor != self.target_node: #If the neighbor is the goal node, we don't need to use the Dijkstra alg.
+                            dist = self.dijkstra(neighbor)
+                            heuristic = dist[self.target_node]
+
                         queue.enqueue((new_path, new_path_cost), new_path_cost + heuristic)
 
         return []  # If we return empty list, it means there is no way to reach T starting from S with meeting each node only once.
+
+
+    def dijkstra(self, start_node):
+        """
+        returns a dictionary that contains the shortest distance to every node from start_node.
+        @param start_node:Node
+        @return:dictionary
+        """
+        visited = []
+        dist = dict()
+        dist[start_node] = 0
+        pq = PriorityQueue()
+
+        pq.enqueue(start_node, 0)
+
+        while len(pq) > 0:
+            current_node = pq.dequeue()
+            visited.append(current_node)
+            for neighbor in current_node.connections:
+                if neighbor in visited: #We already find the shortest path from start_node to this neighbor.
+                    continue
+                total_distance_to_neighbor = dist[current_node] + current_node.get_distance(neighbor)
+                if (neighbor not in dist) or (total_distance_to_neighbor < dist[neighbor]):
+                    dist[neighbor] = total_distance_to_neighbor
+                    pq.enqueue(neighbor, total_distance_to_neighbor)
+
+        return dist
