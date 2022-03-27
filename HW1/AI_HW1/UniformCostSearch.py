@@ -45,7 +45,7 @@ class UniformCostSearch(Algorithm):
                     return path
             else:
                 for neighbor in last_node.connections:
-                    if not neighbor in path:
+                    if neighbor not in path:
                         distance = last_node.get_distance(neighbor)
                         total_distance_to_neighbor = path_cost+distance
                         new_path = path + [neighbor]
