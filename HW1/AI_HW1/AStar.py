@@ -43,14 +43,13 @@ class AStar(Algorithm):
             last_node = path[-1]
 
             if last_node == self.target_node:
-                if not self.validity(
-                        path):  # If we reached the target node without visiting all other nodes, it is a dead end.
+                if not self.validity(path):  # If we reached the target node without visiting all other nodes, it is a dead end.
                     continue
                 else:
                     return path
             else:
                 for neighbor in last_node.connections:
-                    if not neighbor in path:
+                    if neighbor not in path:
                         distance_to_neighbor = last_node.get_distance(neighbor)
                         new_path_cost = path_cost + distance_to_neighbor
                         new_path = path + [neighbor]
@@ -71,6 +70,7 @@ class AStar(Algorithm):
 
         return []  # If we return empty list, it means there is no way to reach T starting from S with meeting each node only once.
 
+# ### Second Heuristic ###
     def dijkstra(self, start_node):
         """
         returns a dictionary that contains the shortest distance to every node from start_node.
@@ -97,7 +97,7 @@ class AStar(Algorithm):
 
         return dist
 
-    # ### Third Heuristic ###
+# ### Third Heuristic ###
     def lazy_prims(self, start_node, vis):
         visited = vis[:]  # Make a copy to ensure we don't change the original data
         mst_expected_num_edges = self.number_of_nodes - len(visited) - 1
