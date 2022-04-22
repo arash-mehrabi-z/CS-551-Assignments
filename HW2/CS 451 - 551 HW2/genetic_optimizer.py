@@ -116,6 +116,7 @@ def mutate(population):
 
     return population
 
+
 def initial_priority_queue(population):
     pq = PriorityQueue()
     for chromosome in population:
@@ -124,9 +125,13 @@ def initial_priority_queue(population):
     return pq
 
 
+def choose_k(NUM_POPULATION):
+    return NUM_POPULATION - choose_num_parents(NUM_POPULATION)
+
+
 def find_k_best_individuals(population, NUM_POPULATION, k = 1):
     pq = initial_priority_queue(population)
-    k = NUM_POPULATION - choose_num_parents(NUM_POPULATION)
+    k = choose_k(NUM_POPULATION)
     k_best_indvs = []
     for i in range(k):
         indv, mse = pq.dequeue()
