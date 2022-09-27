@@ -7,7 +7,7 @@ RANGE = 5.0
 # Noise
 NOISE = 0.05
 # FILE NAME
-FILE_NAME = "data.csv"
+FILE_NAME = "sample_data.csv"
 
 # Initiate Random Weights
 w1 = np.random.normal(0.0, 1.0, (3, 2))

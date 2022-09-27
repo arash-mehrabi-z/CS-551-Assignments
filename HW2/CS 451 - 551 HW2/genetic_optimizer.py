@@ -3,10 +3,16 @@ import pandas as pd
 from chromosome import Chromosome
 import random
 from PriorityQueue import PriorityQueue
+import matplotlib.pyplot as plt   # plotting
 
-NUM_POPULATION = 42
+NUM_POPULATION = 28
 data_file_name = "sample_data.csv"
 MAX_NUM_ITERATION = 2800
+
+best_ind_per_generation = []
+mean_mse_per_generation = []
+plt.figure(0, figsize=(16, 12))
+plt.figure(1, figsize=(16, 12))
 
 def create_chromosome():
     weights = np.random.uniform(-1, 1, 12)
@@ -64,7 +70,10 @@ def is_eligible_parent(candidate_parent, parents):
 
 
 def choose_num_parents(NUM_POPULATION):
-    return int(0.75 * NUM_POPULATION) + 1
+    num_parents = int(0.95 * NUM_POPULATION)
+    if num_parents % 2 != 0:
+        num_parents += 1
+    return num_parents
 
 def select_parents(population, NUM_POPULATION):
     parents = []
@@ -110,7 +119,7 @@ def mutate(population):
     for chromosome in population:
         for i in range(len(chromosome.weight)):
             chance = random.uniform(0, 1)
-            if chance <= 1/14:
+            if chance <= 1/18:
                 new_weight = random.uniform(-1, 1)
                 chromosome.weight[i] = new_weight
 
@@ -149,22 +158,97 @@ def get_x_and_y_truth(data_file_name):
 
 
 def print_log(i):
-    if i % 100 == 0:
-        l = [round(c.mse, 3) for c in population]
-        print(l)
-        print(sum(l) / len(l))
+    if i % 500 == 0 or i < 10:
+        chromosome_mse = [round(chromosome.mse, 3) for chromosome in population]
+        print("Generation: ", str(i))
+        print("Error values of chromosomes of this generation is like following:")
+        print(chromosome_mse)
+        print("The average is: ", sum(chromosome_mse) / len(chromosome_mse))
+        print("-----")
+
+
+def plot(x_coordinate, y_coordinate, xlabel, ylabel, title, save_file_name):
+    plt.figure(figsize=(16, 12))
+    plt.plot(x_coordinate, y_coordinate)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(title)
+    plt.savefig(save_file_name)
+
+
+def plot_each_chromosome(xlabel, ylabel, title, save_file_name):
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(title)
+    plt.savefig(save_file_name)
+
+
+def plot_results(best_ind_per_generation, mean_mse_per_generation):
+    plt.figure(0)
+    plot_each_chromosome("Generation", "Error Value (MSE)",
+      "Error Value of Each Chromosome of Each Generation (Same color means same generation)",
+      "each_chromose.png")
+
+    plt.figure(1)
+    plot_each_chromosome("Generation", "Error Value (MSE)",
+      "Error Value of Each Chromosome of Each Generation (Every 400 Generations)",
+      "each_chromose_every_400.png")
+
+    x_coordinate = [i for i in range(MAX_NUM_ITERATION)]
+    y_coordinate = [chromosome.mse for chromosome in best_ind_per_generation]
+
+    plot(x_coordinate, y_coordinate, "Generation", "Error Value (MSE)",
+         "Error Value of Best Individual of Each Generation", "best_indv_mse.png")
+
+    plot(x_coordinate[:14], y_coordinate[:14], "Generation", "Error Value (MSE)",
+         "Error Value of Best Individual of Each Generation (First 14 Generations)", "best_indv_mse_0_14.png")
+
+    plot(x_coordinate[1000:1014], y_coordinate[1000:1014], "Generation", "Error Value (MSE)",
+         "Error Value of Best Individual of Each Generation (Generations 1000 - 1014)", "best_indv_mse_1000_1014.png")
+
+    y_coordinate = mean_mse_per_generation
+    plot(x_coordinate, y_coordinate, "Generation", "Mean MSE value",
+         "Mean MSE value of Each Generation", "mean_mse_per_generation.png")
+    plot(x_coordinate[:100], y_coordinate[:100], "Generation", "Mean MSE value",
+         "Mean MSE value of Each Generation (First 100 Generations)", "mean_mse_per_generation_0_100.png")
+    plot(x_coordinate[1000:1100], y_coordinate[1000:1100], "Generation", "Mean MSE value",
+         "Mean MSE value of Each Generation (Generations 1000 - 1100)", "mean_mse_per_generation_1000_1100.png")
+
+
+def calculate_mean_mse(population):
+    sum_mse = 0
+    for chromosome in population:
+        sum_mse += chromosome.mse
+
+    return sum_mse / len(population)
+
+
+def record_results(population, k_best_indvs, i):
+    print_log(i)
+    best_ind_per_generation.append(k_best_indvs[0])
+    mean_mse = calculate_mean_mse(population)
+    mean_mse_per_generation.append(mean_mse)
+    population_mse = [chromosome.mse for chromosome in population]
+    if i % 400 == 0:
+        plt.figure(1)
+        plt.scatter([i] * len(population_mse), population_mse)
+
+    plt.figure(0)
+    plt.scatter([i] * len(population_mse), population_mse)
 
 
 if __name__ == '__main__':
     X, y_truth = get_x_and_y_truth(data_file_name)
 
     population = init_population(NUM_POPULATION)
-
     for i in range(MAX_NUM_ITERATION):
         find_fitness(population, X, y_truth)
-        print_log(i)
         k_best_indvs = find_k_best_individuals(population, NUM_POPULATION)
+        record_results(population, k_best_indvs, i)
         parents = select_parents(population, NUM_POPULATION)
         offsprings = crossover(parents)
         offsprings = mutate(offsprings)
         population = offsprings + k_best_indvs
+
+    plot_results(best_ind_per_generation, mean_mse_per_generation)
+
